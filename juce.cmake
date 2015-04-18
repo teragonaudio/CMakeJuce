@@ -18,7 +18,7 @@ elseif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 endif()
 
 # Create a custom target that will build the generated project from Introjucer
-set(main_TARGET build_${CMAKE_PROJECT_NAME})
+set(main_TARGET ${CMAKE_PROJECT_NAME})
 add_custom_target(${main_TARGET} ALL
                   COMMAND ${plugin_BUILDER}
                   WORKING_DIRECTORY
