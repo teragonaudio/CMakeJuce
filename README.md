@@ -47,14 +47,14 @@ Create the following `CMakeLists.txt` file in your project's top-level
 directory:
 
 ```cmake
-    cmake_minimum_required(VERSION 2.8)
-    project(YourProjectName)
+cmake_minimum_required(VERSION 2.8)
+project(YourProjectName)
 
-    if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-      add_subdirectory(Builds/MacOSX)
-    elseif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-      add_subdirectory(Builds/Linux)
-    endif()
+if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+  add_subdirectory(Builds/MacOSX)
+elseif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+  add_subdirectory(Builds/Linux)
+endif()
 ```
 
 `YourProjectName` should match the project name which you made in Introjucer.
@@ -70,7 +70,7 @@ include(../CMakeJuce/juce.cmake)
 The reason that this is required is that we want the `include` to come from
 the same directory as the Introjucer-generated build file. That way, compiler
 errors will have correct relative paths and be rendered as links in IDEs that
-support this.
+support this feature.
 
 
 Usage
