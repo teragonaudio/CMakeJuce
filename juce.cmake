@@ -29,21 +29,23 @@ add_custom_target(${main_TARGET} ALL
 set(plugin_SOURCE_DIR ${PROJECT_SOURCE_DIR}/Source)
 set(juce_SOURCE_DIR ${PROJECT_SOURCE_DIR}/JuceLibraryCode)
 
-# TODO: How to add additional sources here?
-set(plugin_SOURCES
-    ${plugin_SOURCE_DIR}/PluginEditor.cpp
-    ${plugin_SOURCE_DIR}/PluginProcessor.cpp
+# Glob all C++ sources and headers. Normally globs are not recommended
+# practice in CMake, however there's no easy way to maintain the list
+# of sources.
+file(GLOB_RECURSE plugin_SOURCES
+    RELATIVE
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    "${plugin_SOURCE_DIR}/*.cpp"
 )
 
-# TODO: How to add additional sources here?
-set(plugin_HEADERS
-    ${plugin_SOURCE_DIR}/PluginEditor.h
-    ${plugin_SOURCE_DIR}/PluginProcessor.h
-    ${juce_SOURCE_DIR}/AppConfig.h
-    ${juce_SOURCE_DIR}/JuceHeader.h
+file(GLOB_RECURSE plugin_HEADERS
+    RELATIVE
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    "${plugin_SOURCE_DIR}/*.h"
 )
 
-# Glob all Juce sources so they are visible in the IDE
+# Also glob the Juce sources so they are visible in the IDE and we get
+# help with auto-completion etc.
 file(GLOB_RECURSE juce_SOURCES
      RELATIVE
      ${CMAKE_CURRENT_SOURCE_DIR}
