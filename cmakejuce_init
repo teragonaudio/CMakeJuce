@@ -1,3 +1,32 @@
+#!/usr/bin/python
+#
+#
+from __future__ import print_function
+import sys
+import os
+
+g_cmakejuce_folder = 'Builds/CMakeJuce'
+
+def usage(): 
+    print ('usage:')
+    print ('from your root project folder:')
+    print (' create_cmake_juce [<project_name>]')
+    print ('if no project name is specified then if a single .jucer file')
+    print ('is present in the current folder then the name of the jucer')
+    print ('file will be used.')
+    sys.exit(1)
+
+def create_cmake_folder():
+    try:
+        os.mkdir(g_cmakejuce_folder)
+    except:
+        print ('Could not create folder. Perhaps builds folder not found.')
+        print ('Are we in a jucer project folder structure?')
+        usage()
+
+    f = open(g_cmakejuce_folder + '/juce.cmake', 'w')
+    
+    print ("""
 cmake_minimum_required(VERSION 2.8)
 
 # TODO: Document and split off to submodule
@@ -54,6 +83,8 @@ file(GLOB_RECURSE juce_SOURCES
      "${juce_SOURCE_DIR}/*.mm"
 )
 
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+
 # Help some IDEs with #include completion
 include_directories(${juce_SOURCE_DIR})
 
@@ -87,3 +118,75 @@ set_target_properties(virtual_TARGET
 
 # Allow the main target to build with the external build target
 add_dependencies(virtual_TARGET ${main_TARGET})
+""", file=f)
+    f.close()
+    return 
+
+def get_name_of_single_jucer():
+    result = None
+    files_in_current_dir = os.listdir('.')
+    for f in files_in_current_dir:
+        if f.endswith('.jucer'):
+            if result is None:
+                result = f
+            else:
+                print ('multiple jucer files found')
+                usage()
+
+    return result 
+
+
+def get_project_name(): 
+    if len(sys.argv) > 1:
+        possible_name = sys.argv[1]
+    else: 
+        possible_name = get_name_of_single_jucer()
+
+    if possible_name is None:
+        print ('error: no project name found')
+        usage()
+
+    return possible_name
+
+
+
+def create_root_file(project_name):
+    f = open('CMakeLists.txt', 'w')
+    print ('cmake_minimum_required(VERSION 2.8)', file=f)
+    print ('project(' + project_name + ')', file=f)
+
+    print ('if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")', file=f)
+    print ('  add_subdirectory(Builds/MacOSX)', file=f)
+    print ('elseif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")', file=f)
+    print ('  add_subdirectory(Builds/Linux)', file=f)
+    print ('endif()', file=f)
+    f.close()
+    pass
+
+
+def create_per_project_file(build_folder_name):
+    original_folder = os.getcwd()
+
+    try: 
+        os.chdir('Builds/MacOSX')
+    except OSError:
+        print ("failed to find", build_folder_name, "build folder")
+        os.chdir(original_folder)
+        return
+
+    f = open('CMakeLists.txt', 'w')
+    print ('cmake_minimum_required(VERSION 2.8)', file=f)
+    print ('include (../CMakeJuce/juce.cmake)', file=f)
+    f.close()
+    return
+
+
+# main...
+proj_name = get_project_name()
+print ("creating for project", proj_name)
+
+create_root_file(proj_name)
+create_cmake_folder()
+create_per_project_file('MacOSX')
+create_per_project_file('Linux')
+
